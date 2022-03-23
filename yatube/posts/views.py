@@ -60,30 +60,31 @@ def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
 @login_required(redirect_field_name='users:login')
 def post_create(request: HttpRequest) -> HttpResponse:
     """Возвращает страницу c формой создания поста."""
-    if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-            new_post = form.save(commit=False)
-            new_post.author_id = request.user.id
-            new_post.save()
-            return redirect('posts:profile', username=request.user.username)
+    if not request.method == 'POST':
+        form = PostForm()
         return render(request, 'posts/create_post.html',
                       context={'form': form})
-    form = PostForm()
-    return render(request, 'posts/create_post.html', context={'form': form})
+    form = PostForm(request.POST)
+    if not form.is_valid():
+        return render(request, 'posts/create_post.html',
+                      context={'form': form})
+    new_post = form.save(commit=False)
+    new_post.author_id = request.user.id
+    new_post.save()
+    return redirect('posts:profile', username=request.user.username)
 
 
 @login_required(redirect_field_name='users:login')
 def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
     """Возвращает страницу c формой редактирования поста."""
     post = get_object_or_404(Post, id=post_id)
-    if request.user.id == post.author_id:
-        if request.method == 'POST':
-            form = PostForm(request.POST, instance=post)
-            if form.is_valid():
-                form.save()
-                return redirect('posts:post_detail', post_id=post_id)
+    if not request.user.id == post.author_id:
+        return redirect('posts:post_detail', post_id=post_id)
+    if not request.method == 'POST':
         form = PostForm(instance=post)
         return render(request, 'posts/create_post.html',
                       context={'form': form, 'is_edit': True})
-    return redirect('posts:post_detail', post_id=post_id)
+    form = PostForm(request.POST, instance=post)
+    if form.is_valid():
+        form.save()
+        return redirect('posts:post_detail', post_id=post_id)
