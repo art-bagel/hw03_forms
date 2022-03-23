@@ -1,0 +1,19 @@
+<article>
+  <ul>
+    <li>
+      Автор: {{ post.author.get_full_name }}
+      {% if all_posts_user %}
+        <a href="{% url 'posts:profile' post.author.username %}">
+          все посты пользователя
+        </a>
+      {% endif %}
+    </li>
+    <li>
+      Дата публикации: {{ post.pub_date|date:'d E Y' }}
+    </li>
+  </ul>
+  <p>{{ post.text|truncatechars:600 }}</p>
+  <a href="{% url 'posts:post_detail' post.id %}">подробная информация </a>
+</article>
+
+
