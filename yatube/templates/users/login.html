@@ -8,7 +8,6 @@
         <div class="card-header">Войти на сайт</div>
         <div class="card-body">
           {% include 'includes/form_alert.html' %}
-
           <form method="post"
             {% if action_url %}
               action="{% url action_url %}"
