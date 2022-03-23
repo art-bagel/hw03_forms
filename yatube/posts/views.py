@@ -88,3 +88,5 @@ def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
     if form.is_valid():
         form.save()
         return redirect('posts:post_detail', post_id=post_id)
+    return render(request, 'posts/create_post.html',
+                  context={'form': form, 'is_edit': True})
