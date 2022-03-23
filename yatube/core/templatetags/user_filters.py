@@ -6,5 +6,5 @@ register = template.Library()
 
 @register.filter
 def addclass(field: BoundField, css: str) -> str:
-    """Добавляет атрибут class в тег."""
+    """Добавляет атрибут class в html тег."""
     return field.as_widget(attrs={'class': css})
