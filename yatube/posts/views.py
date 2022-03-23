@@ -37,7 +37,7 @@ def profile(request: HttpRequest, username: str) -> HttpResponse:
     author = get_object_or_404(User, username=username)
     post_list = author.posts.select_related('group')
     page_obj, amount_posts = get_paginator_and_amount_all_posts(request,
-                                                                 post_list)
+                                                                post_list)
     context = {
         'author': author,
         'amount_posts': amount_posts,
