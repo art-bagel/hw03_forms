@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from posts.forms import PostForm
 from posts.models import Group, Post
 
-from posts.services import get_paginator_and_amount_all_posts
+from posts.services import get_paginator
 
 User = get_user_model()
 
@@ -13,7 +13,7 @@ User = get_user_model()
 def index(request: HttpRequest) -> HttpResponse:
     """Возвращает главную страницу сайта."""
     post_list = Post.objects.select_related('author', 'group')
-    page_obj = get_paginator_and_amount_all_posts(request, post_list)[0]
+    page_obj = get_paginator(request, post_list)
     context = {
         'page_obj': page_obj,
     }
@@ -24,7 +24,7 @@ def group_posts(request: HttpRequest, slug: str) -> HttpResponse:
     """Возвращает страницу с постами для выбранной группы."""
     group = get_object_or_404(Group, slug=slug)
     post_list = group.posts.select_related('author')
-    page_obj = get_paginator_and_amount_all_posts(request, post_list)[0]
+    page_obj = get_paginator(request, post_list)
     context = {
         'group': group,
         'page_obj': page_obj,
@@ -36,11 +36,9 @@ def profile(request: HttpRequest, username: str) -> HttpResponse:
     """Возвращает страницу автора с его постами."""
     author = get_object_or_404(User, username=username)
     post_list = author.posts.select_related('group')
-    page_obj, amount_posts = get_paginator_and_amount_all_posts(request,
-                                                                post_list)
+    page_obj = get_paginator(request, post_list)
     context = {
         'author': author,
-        'amount_posts': amount_posts,
         'page_obj': page_obj
     }
     return render(request, 'posts/profile.html', context)
@@ -49,10 +47,10 @@ def profile(request: HttpRequest, username: str) -> HttpResponse:
 def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
     """Возвращает подробную информация о посте."""
     post = get_object_or_404(Post, id=post_id)
-    amount_posts_author = Post.objects.filter(author=post.author).count()
+    number_posts_author = Post.objects.filter(author=post.author).count()
     context = {
         'post': post,
-        'amount_posts': amount_posts_author
+        'number_posts_author': number_posts_author
     }
     return render(request, 'posts/post_detail.html', context)
 
