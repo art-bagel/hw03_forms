@@ -2,9 +2,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+
 from posts.forms import PostForm
 from posts.models import Group, Post
-
 from posts.services import get_paginator
 
 User = get_user_model()
@@ -36,6 +36,9 @@ def profile(request: HttpRequest, username: str) -> HttpResponse:
     """Возвращает страницу автора с его постами."""
     author = get_object_or_404(User, username=username)
     post_list = author.posts.select_related('group')
+    # Привет!:)
+    # На странице profile отображается информация к какой группе относится пост
+    # Если я пишу author.posts.all(), то происходит еще 7 доп. запросов в БД
     page_obj = get_paginator(request, post_list)
     context = {
         'author': author,
@@ -58,7 +61,7 @@ def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
 @login_required(redirect_field_name='users:login')
 def post_create(request: HttpRequest) -> HttpResponse:
     """Возвращает страницу c формой создания поста."""
-    if not request.method == 'POST':
+    if request.method != 'POST':
         form = PostForm()
         return render(request, 'posts/create_post.html',
                       context={'form': form})
@@ -76,9 +79,9 @@ def post_create(request: HttpRequest) -> HttpResponse:
 def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
     """Возвращает страницу c формой редактирования поста."""
     post = get_object_or_404(Post, id=post_id)
-    if not request.user.id == post.author_id:
+    if request.user.id != post.author_id:
         return redirect('posts:post_detail', post_id=post_id)
-    if not request.method == 'POST':
+    if request.method != 'POST':
         form = PostForm(instance=post)
         return render(request, 'posts/create_post.html',
                       context={'form': form, 'is_edit': True})
