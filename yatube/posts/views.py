@@ -33,7 +33,7 @@ def group_posts(request: HttpRequest, slug: str) -> HttpResponse:
 
 
 def profile(request: HttpRequest, username: str) -> HttpResponse:
-    """Возвращает страницу автора, его посты и группы,
+    """Возвращает страницу автора, его посты и ссылки на группы,
     к которым они относятся.
     """
     author = get_object_or_404(User, username=username)
