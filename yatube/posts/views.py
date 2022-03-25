@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 def index(request: HttpRequest) -> HttpResponse:
-    """Возвращает главную страницу сайта."""
+    """Возвращает главную страницу сайта со всеми постами."""
     post_list = Post.objects.select_related('author', 'group')
     page_obj = get_paginator(request, post_list)
     context = {
@@ -33,12 +33,11 @@ def group_posts(request: HttpRequest, slug: str) -> HttpResponse:
 
 
 def profile(request: HttpRequest, username: str) -> HttpResponse:
-    """Возвращает страницу автора с его постами."""
+    """Возвращает страницу автора, его посты и группы,
+    к которым они относятся.
+    """
     author = get_object_or_404(User, username=username)
     post_list = author.posts.select_related('group')
-    # Привет!:)
-    # На странице profile отображается информация к какой группе относится пост
-    # Если я пишу author.posts.all(), то происходит еще 7 доп. запросов в БД
     page_obj = get_paginator(request, post_list)
     context = {
         'author': author,
@@ -48,7 +47,7 @@ def profile(request: HttpRequest, username: str) -> HttpResponse:
 
 
 def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
-    """Возвращает подробную информация о посте."""
+    """Возвращает страницу с подробной информацией о посте."""
     post = get_object_or_404(Post, id=post_id)
     number_posts_author = Post.objects.filter(author=post.author).count()
     context = {
@@ -58,7 +57,7 @@ def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
     return render(request, 'posts/post_detail.html', context)
 
 
-@login_required(redirect_field_name='users:login')
+@login_required()
 def post_create(request: HttpRequest) -> HttpResponse:
     """Возвращает страницу c формой создания поста."""
     if request.method != 'POST':
@@ -75,9 +74,9 @@ def post_create(request: HttpRequest) -> HttpResponse:
     return redirect('posts:profile', username=request.user.username)
 
 
-@login_required(redirect_field_name='users:login')
+@login_required()
 def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
-    """Возвращает страницу c формой редактирования поста."""
+    """Возвращает страницу c формой редактирования выбранного поста."""
     post = get_object_or_404(Post, id=post_id)
     if request.user.id != post.author_id:
         return redirect('posts:post_detail', post_id=post_id)

@@ -13,16 +13,17 @@
               action="{% url action_url %}"
             {% endif %}
           >
-          {% include 'includes/form_fields.html' %}
-          <div class="col-md-6 offset-md-4">
-            <button type="submit" class="btn btn-primary">
-              Войти
-            </button>
-            <a href="{% url 'users:password_reset' %}"
-               class="btn btn-link">
-              Забыли пароль?
-            </a>
-          </div>
+            {% csrf_token %}
+            {% include 'includes/form_fields.html' %}
+            <div class="col-md-6 offset-md-4">
+              <button type="submit" class="btn btn-primary">
+                Войти
+              </button>
+              <a href="{% url 'users:password_reset' %}"
+                 class="btn btn-link">
+                Забыли пароль?
+              </a>
+            </div>
           </form>
         </div>
       </div>
