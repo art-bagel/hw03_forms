@@ -1,5 +1,6 @@
 from django import forms
 from django.test import Client, TestCase
+from django.http.response import HttpResponse
 from django.urls import reverse
 
 from posts.models import Group, Post, User
@@ -160,7 +161,7 @@ class PostViewTests(TestCase):
         )
         self._check_correct_form_from_context(response)
 
-    def _check_correct_form_from_context(self, response):
+    def _check_correct_form_from_context(self, response: HttpResponse) -> None:
         """Проверяем корректность формы передаваемой в контексте."""
         form_fields = {
             'text': forms.fields.CharField,
@@ -224,7 +225,7 @@ class PaginatorViewsTest(TestCase):
             self.number_create_posts % POSTS_PER_PAGE
         )
 
-    def _check_correct_pagination(self, url_page, expected):
+    def _check_correct_pagination(self, url_page: str, expected: int) -> None:
         """Сравнивает количество постов на запрошенной странице с ожидаемым
         результатом.
         """

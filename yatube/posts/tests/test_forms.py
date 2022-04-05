@@ -20,7 +20,7 @@ class PostFormTests(TestCase):
         )
 
     def setUp(self):
-        """Создаем клиента и один пост."""
+        """Создаем клиента и пост."""
         self.authorized_client = Client()
         self.authorized_client.force_login(self.author)
         self.post = Post.objects.create(

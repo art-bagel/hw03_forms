@@ -14,14 +14,17 @@ class PostModelTest(TestCase):
             slug='test_slug',
             description='Тестовое описание',
         )
-        cls.post = Post.objects.create(
+
+    def setUp(self):
+        """Создаем тестовый пост."""
+        self.post = Post.objects.create(
             text='qwert' * 30,
-            author=cls.author,
+            author=self.author,
         )
 
     def test_models_have_correct_object_names(self):
         """Проверяем, что у моделей корректно работает __str__."""
-        post = str(PostModelTest.post)
-        group = str(PostModelTest.group)
+        post = str(self.post)
+        group = str(self.group)
         self.assertEqual(post, 'qwertqwertqwert')
         self.assertEqual(group, 'Тестовая группа')

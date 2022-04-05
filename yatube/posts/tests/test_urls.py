@@ -40,22 +40,23 @@ class PostURLTests(TestCase):
             f'/profile/{self.author.username}/': HTTPStatus.OK,
             '/unexciting_page/': HTTPStatus.NOT_FOUND
         }
-        self._custom_sub_test('Equal',
-                              url_names_httpstatus,
-                              self.guest_client)
+        for address, httpstatus in url_names_httpstatus.items():
+            with self.subTest(address=address):
+                response = self.authorized_client.get(address, follow=True)
+                self.assertEqual(response.status_code, httpstatus)
 
     def test_url_redirect_anonymous_on_login(self):
         """Страницы из url_names_redirect перенаправят
         незарегистрированного пользователя на страницу авторизации.
         """
-        url_names_redirect = {
-            f'/posts/{self.post.id}/edit/':
-                '/auth/login/' + '?next=' + f'/posts/{self.post.id}/edit/',
-            '/create/': '/auth/login/' + '?next=' + '/create/'
-        }
-        self._custom_sub_test('Redirects',
-                              url_names_redirect,
-                              self.guest_client)
+        self.assertRedirects(
+            self.guest_client.get(f'/posts/{self.post.id}/edit/'),
+            '/auth/login/' + '?next=' + f'/posts/{self.post.id}/edit/'
+        )
+        self.assertRedirects(
+            self.guest_client.get('/create/'),
+            '/auth/login/' + '?next=' + '/create/'
+        )
 
     def test_post_edit_url_available_to_author(self):
         """Страница редактирования поста доступна, только авторизованному
@@ -88,21 +89,9 @@ class PostURLTests(TestCase):
             f'/posts/{self.post.id}': 'posts/post_detail.html',
             f'/posts/{self.post.id}/edit/': 'posts/create_post.html'
         }
-        self._custom_sub_test('TemplateUsed',
-                              url_names_templates,
-                              self.authorized_client_author)
-
-    def _custom_sub_test(self, assert_method: str,
-                         dictionary,
-                         client: Client
-                         ) -> None:
-        """Универсальный subTest метод."""
-        for address, result in dictionary.items():
+        for address, template in url_names_templates.items():
             with self.subTest(address=address):
-                response = client.get(address, follow=True)
-                if assert_method == 'Equal':
-                    self.assertEqual(response.status_code, result)
-                elif assert_method == 'Redirects':
-                    self.assertRedirects(response, result)
-                elif assert_method =='TemplateUsed':
-                    self.assertTemplateUsed(response, result)
+                response = self.authorized_client_author.get(
+                    address, follow=True
+                )
+                self.assertTemplateUsed(response, template)
